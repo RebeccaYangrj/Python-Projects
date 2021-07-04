@@ -1,5 +1,12 @@
 from ssl import Options
 import justpy as jp
+import pandas
+from datetime import datetime
+from pytz import utc
+
+data = pandas.read_csv("reviews.csv", parse_dates=['Timestamp'])
+share = data.groupby(["Course Name"])["Rating"].count()
+
 
 fig_fmt = """
 {
@@ -72,7 +79,9 @@ def app():
     wp = jp.QuasarPage()
     h1 = jp.QDiv(a=wp, text = "Analysis of Course Reviews", classes ="text-h3 text-weight-bold text-center q-pa-md")
     p1 = jp.QDiv(a=wp, text = "These graphs represent course review analysis")
-    hc = jp.HighCharts(a=wp, Options = fig_fmt)
+    hc = jp.HighCharts(a=wp, options = fig_fmt)
+    hc_data = [{"name":v1, "y":v2} for v1, v2 in zip(share.index,share)] 
+    hc.options.series[0].data = hc_data
     return wp
 
 
